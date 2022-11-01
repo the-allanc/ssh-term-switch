@@ -71,10 +71,6 @@ Copy the `sshbg` script to some dir in your PATH, for example:
 
     sudo cp sshbg /usr/local/bin/
 
-Copy the `sshbg.conf` file to `~/.config/sshbg.conf`:
-
-    cp sshbg.conf ~/.config/
-
 Enable the `LocalCommand` configuration setting in your SSH config. You can do
 this on a host-by-host basis, or with wildcards. To enable it for all hosts,
 make your SSH config look like this:
@@ -83,36 +79,6 @@ make your SSH config look like this:
     PermitLocalCommand yes
     Host *
         LocalCommand sshbg "%n"
-
-## Config file
-
-The config file is a JSON file that looks like this:
-
-    {
-        "normal_bg_color": "#000000",
-        "profiles": {
-            "prod": "#2F0100",
-            "uat": "#1A1400",
-            "test": "#011A00"
-        },
-        "hostnames": {
-            "test.dev.local": "test",
-            "uat.dev.local": "uat",
-            "prod.dev.local": "prod",
-            ".*-prod.*": "prod",
-            "acc.*": "uat"
-        }
-    }
-
-
-The keys:
-
-* `normal_bg_color`: The normal background color of your terminal, which
-  sshbg will reset your terminal to when the SSH command returns.
-* `profiles`: The list of profile names and their associated colors. You
-  can name these whatever you want.
-* `hostnames`: Regular expressions that are matched against the hostname
-  you're SSH'ign too. If the regex matches, the profile is selected.
 
 ## Remarks, weirdness and bugs.
 
