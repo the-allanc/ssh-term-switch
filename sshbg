@@ -2,6 +2,7 @@
 
 # Released under the MIT license. See LICENSE file accompanying this project.
 
+import atexit
 import os
 import socket
 import time
@@ -81,7 +82,6 @@ if __name__ == "__main__":
     # Fork into the background so we can wait for the ssh process to exit.
     pid = os.fork()
     if pid == 0:
-        # Child process. Wait for ssh process to exit
+        # Reset the background color on exit.
+        atexit.register(set_host, socket.gethostname())
         wait_parent_pid(ssh_pid)
-        # Reset the background color
-        set_host(socket.gethostname())
