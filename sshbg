@@ -3,12 +3,15 @@
 # Released under the MIT license. See LICENSE file accompanying this project.
 
 import os
+import socket
 import time
 import sys
 import json
 import re
 
-bg_esc = "\033]11;{}\a"
+
+def set_host(host):
+    print(f'\033]7;file://{host}\007', end='')
 
 
 def is_interactive(pid, hostname):
@@ -67,9 +70,6 @@ if __name__ == "__main__":
         sys.exit("Usage: {} <hostname>".format(sys.argv[0]))
     hostname = sys.argv[1]
 
-    bg_esc_reset = bg_esc.format('#000000')
-    bg_esc_host = bg_esc.format('#2F0100')
-
     # Get our parent pid, which is the PID for the ssh process.
     ssh_pid = os.getppid()
 
@@ -78,8 +78,7 @@ if __name__ == "__main__":
         # Don't do anything or SSH will wait for our forked child.
         sys.exit(0)
 
-    # Write out the ANSI escape seq to change background color
-    sys.stdout.write(bg_esc_host)
+    set_host(hostname + '/')
 
     # Fork into the background so we can wait for the ssh process to exit.
     pid = os.fork()
@@ -87,4 +86,4 @@ if __name__ == "__main__":
         # Child process. Wait for ssh process to exit
         wait_parent_pid(ssh_pid)
         # Reset the background color
-        sys.stdout.write(bg_esc_reset)
+        set_host(socket.gethostname())
