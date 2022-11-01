@@ -65,9 +65,10 @@ def wait_parent_pid(parent_pid):
 
 if __name__ == "__main__":
     # Arguments
-    if len(sys.argv) < 1:
-        sys.exit("Usage: {} <hostname>".format(sys.argv[0]))
+    if len(sys.argv) not in (2, 3):
+        sys.exit("Usage: {} <hostname> [alias]".format(sys.argv[0]))
     hostname = sys.argv[1]
+    alias = sys.argv[-1]
 
     # Get our parent pid, which is the PID for the ssh process.
     ssh_pid = os.getppid()
@@ -77,7 +78,7 @@ if __name__ == "__main__":
         # Don't do anything or SSH will wait for our forked child.
         sys.exit(0)
 
-    set_host(hostname + '/')
+    set_host(alias + '/')
 
     # Fork into the background so we can wait for the ssh process to exit.
     pid = os.fork()
