@@ -1,75 +1,29 @@
-sshbg
-=====
+ssh-tilix-profile-switch
+========================
 
-Change terminal background color when SSH'ing.
+Script to help change Tilix profile when SSH'ing.
 
-<font color="#FF0000">**Important notice**</font>: I do not provide support
-for this repository. Please do not file feature requests for different
-terminals or bug reports if this setup does not work for you.
+I liked [this script](https://github.com/fboender/sshbg) which intelligently determines whether you're starting a new SSH session, and to which host, and to colour the background based on the hostname.
 
-![Demo](demo.gif)
+And I liked [this guide](https://deeb.me/20190116/change-profiles-automatically-in-tilix-when-connecting-to-ssh-hosts) to alias the `ssh` command to help trigger a Tilix profile.
 
-(Yes, all the hosts are actually localhost. I was lazy).
-
-## Supported emulators, caveat and problems
-
-This **doesn't work** with:
-
-* Almost every terminal emulator in existence (Terminator, Gnome terminal,
-  XFCE terminal, anything based on libvte). **Update**: Seems to work now with
-  libvte v2.91+. Maybe older versions too.
-* When you're using `ControlMaster auto` in your SSH config.
-
-The following terminal emulators are supported:
-
-* [Tilix](https://github.com/gnunn1/tilix) v1.7.7.
-* Xterm
-
-To check if your terminal is supported, paste the following in your terminal:
-
-     echo -e "\033]11;#007F00\a"
-
-If the background of your terminal changes to green, it is supported.
-
-Tilix supported this in v1.7.7 and below. Since v1.7.7 it has been broken. See
-[this bugreport](https://github.com/gnunn1/tilix/issues/1759).  You can
-downgrade to [v1.7.7](https://github.com/gnunn1/tilix/releases/tag/1.7.7) to
-get it working again.
-
-**Don't ask me for support for your specific terminal**. Chances are
-very good that it can't be supported.
-
-
-## How does it work?
-
-Black unix magic. Well, not really. Well, kinda...
-
-SSH lets you run a local command before the connection to the remote host is
-established. Some terminals allow you to set the background color with an
-escape sequence. It's possible to detect if the SSH command has exited from
-the locally executed command by polling the parent process PID in the
-background. Combine the three and presto! Background colors.
-
-sshbg matches (regex) entries in a configuration file against the provided
-hostname. That results in a profile name, which has a background color
-associated with it. See the "Config file" section at the bottom of this page
-for more info.
+So I combined them - you can use this script to help automatically set a Tilix profile, and use the standard SSH config file to help set the name.
 
 ## Installation and usage
 
 Requirements:
 
 * Python v3.x+
-* A supported terminal
+* Tilix
 
 Clone this repo:
 
-    git clone git@github.com:fboender/sshbg.git
-    cd sshbg
+    git clone git@github.com:the-allanc/ssh-tilix-profile-switch.git
+    cd ssh-tilix-profile-switch
 
-Copy the `sshbg` script to some dir in your PATH, for example:
+Copy the `ssh-tilix-profile-switch` script to some dir in your PATH, for example:
 
-    sudo cp sshbg /usr/local/bin/
+    sudo cp ssh-tilix-profile-switch /usr/local/bin/
 
 Enable the `LocalCommand` configuration setting in your SSH config. You can do
 this on a host-by-host basis, or with wildcards. To enable it for all hosts,
@@ -78,7 +32,25 @@ make your SSH config look like this:
     $ cat ~/.ssh/config
     PermitLocalCommand yes
     Host *
-        LocalCommand sshbg "%n"
+        LocalCommand ssh-tilix-profile-switch "%n"
+
+This will tell the script (which will inform Tilix) that you have connected to the hostname given.
+
+You can also pass an "alias" argument to the command, which makes it easier to group
+a set of hosts under a single profile. For example:
+
+    $ cat ~/.ssh/config
+    PermitLocalCommand yes
+    Host *.production
+        LocalCommand ssh-tilix-profile-switch "%n" "prod"
+    Host devbox devbox2
+        LocalCommand ssh-tilix-profile-switch "%n"
+    Host docker*
+        LocalCommand ssh-tilix-profile-switch "%n" "docker"
+    Host *
+        LocalCommand ssh-tilix-profile-switch "%n" "default"
+
+Then when setting up the automatic profile switching in Tilix (as described [here](https://deeb.me/20190116/change-profiles-automatically-in-tilix-when-connecting-to-ssh-hosts)), you can use the aliases instead of the hostname (in the case of the example, you can use "prod", "docker" or "default").
 
 ## Remarks, weirdness and bugs.
 
@@ -86,13 +58,6 @@ make your SSH config look like this:
   the real remote hostname.
 * Manually chained SSH (`ssh machine_a -> ssh machine_b`) will not work.
   Automatically chained SSH (through `ProxyCommand`) *will* work.
-* When SSH exits, the terminal background color is reset to the value of
-  `normal_bg_color` in the configuration file. I have not yet found a way to
-  reset the original terminal color as defined in your terminal.
-* After the background color is set by sshbg, your terminal probably can't
-  change the background color itself anymore. No idea why.
-* Probably a million different strange behaviours. Did I mention I don't
-  support this project already?
 
 ## License
 
