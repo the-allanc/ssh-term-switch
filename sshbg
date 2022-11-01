@@ -6,8 +6,6 @@ import os
 import socket
 import time
 import sys
-import json
-import re
 
 
 def set_host(host):
@@ -61,7 +59,7 @@ def wait_parent_pid(parent_pid):
         except OSError:
             # Parent pid (ssh) exited
             return
-        time.sleep(0.1)
+        time.sleep(0.5)
 
 
 if __name__ == "__main__":
