@@ -11,18 +11,6 @@ import re
 bg_esc = "\033]11;{}\a"
 
 
-class SSHBGError(Exception):
-    pass
-
-
-def err_exit(err_msg, exit_code):
-    """
-    Print error to stderr and exit with exit code.
-    """
-    sys.stderr.write("{}\n".format(err_msg))
-    sys.exit(exit_code)
-
-
 def is_interactive(pid, hostname):
     """
     Verify that this SSH connection is interactive. Returns True if the
@@ -74,33 +62,29 @@ def wait_parent_pid(parent_pid):
 
 
 if __name__ == "__main__":
-    try:
-        # Arguments
-        if len(sys.argv) < 1:
-            err_exit("Usage: {} <hostname>".format(sys.argv[0]), 1)
-        hostname = sys.argv[1]
+    # Arguments
+    if len(sys.argv) < 1:
+        sys.exit("Usage: {} <hostname>".format(sys.argv[0]))
+    hostname = sys.argv[1]
 
-        bg_esc_reset = bg_esc.format('#000000')
-        bg_esc_host = bg_esc.format('#2F0100')
+    bg_esc_reset = bg_esc.format('#000000')
+    bg_esc_host = bg_esc.format('#2F0100')
 
-        # Get our parent pid, which is the PID for the ssh process.
-        ssh_pid = os.getppid()
+    # Get our parent pid, which is the PID for the ssh process.
+    ssh_pid = os.getppid()
 
-        # Verify that this is not a forwarding connection.
-        if not is_interactive(ssh_pid, hostname):
-            # Don't do anything or SSH will wait for our forked child.
-            sys.exit(0)
+    # Verify that this is not a forwarding connection.
+    if not is_interactive(ssh_pid, hostname):
+        # Don't do anything or SSH will wait for our forked child.
+        sys.exit(0)
 
-        # Write out the ANSI escape seq to change background color
-        sys.stdout.write(bg_esc_host)
+    # Write out the ANSI escape seq to change background color
+    sys.stdout.write(bg_esc_host)
 
-        # Fork into the background so we can wait for the ssh process to exit.
-        pid = os.fork()
-        if pid == 0:
-            # Child process. Wait for ssh process to exit
-            wait_parent_pid(ssh_pid)
-            # Reset the background color
-            sys.stdout.write(bg_esc_reset)
-    except SSHBGError as err:
-        err_msg, err_exit_code = err
-        err_exit(err_msg, err_exit_code)
+    # Fork into the background so we can wait for the ssh process to exit.
+    pid = os.fork()
+    if pid == 0:
+        # Child process. Wait for ssh process to exit
+        wait_parent_pid(ssh_pid)
+        # Reset the background color
+        sys.stdout.write(bg_esc_reset)
