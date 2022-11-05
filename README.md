@@ -86,7 +86,3 @@ The command will still set the hostname to allow Tilix to do profile switching, 
 * Manually chained SSH (`ssh machine_a -> ssh machine_b`) will not work.
   Automatically chained SSH (through `ProxyCommand`) *will* work.
 * Changing colors will not necessarily work for all terminals - such as Byobu.
-
-## License
-
-MIT license. See `LICENSE` file.
