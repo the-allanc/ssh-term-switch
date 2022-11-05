@@ -10,9 +10,14 @@ import time
 import sys
 
 
+def get_bg_terminal_color():
+    return '#000000'
+
 def set_host(host):
     print(f'\033]7;file://{host}\007', end='')
 
+def set_bg_color(color):
+    print(f"\033]11;{color}\a", end='')
 
 def is_interactive(pid, hostname):
     """
@@ -69,6 +74,8 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Change profile or colors on SSH connect.')
     parser.add_argument('hostname', help='Hostname being connected to.')
     parser.add_argument('--alias', help="Alias hostname to inform Tilix we are connecting to.")
+    parser.add_argument('--remotebg', help="RGB background color for the terminal on connect.")
+    parser.add_argument('--localbg', help="RGB background color for the terminal on disconnect.")
 
     args = parser.parse_args()
 
@@ -80,6 +87,11 @@ if __name__ == "__main__":
         # Don't do anything or SSH will wait for our forked child.
         sys.exit(0)
 
+    # Do we want to set the background color?
+    if args.remotebg:
+        localbg = args.localbg or get_bg_terminal_color()
+        set_bg_color(args.remotebg)
+
     set_host((args.alias or args.hostname) + '/')
 
     # Fork into the background so we can wait for the ssh process to exit.
@@ -87,4 +99,6 @@ if __name__ == "__main__":
     if pid == 0:
         # Reset the background color on exit.
         atexit.register(set_host, socket.gethostname())
+        if args.remotebg:
+            atexit.register(set_bg_color, localbg)
         wait_parent_pid(ssh_pid)

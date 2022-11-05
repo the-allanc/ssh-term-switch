@@ -7,14 +7,14 @@ I liked [this script](https://github.com/fboender/sshbg) which intelligently det
 
 And I liked [this guide](https://deeb.me/20190116/change-profiles-automatically-in-tilix-when-connecting-to-ssh-hosts) to alias the `ssh` command to help trigger a Tilix profile.
 
-So I combined them - you can use this script to help automatically set a Tilix profile, and use the standard SSH config file to help set the name.
+So I combined them - you can use this script to help automatically set a Tilix profile, and use the standard SSH config file to help set the name. It can also set the background color too for other terminals.
 
 ## Installation and usage
 
 Requirements:
 
 * Python v3.x+
-* Tilix
+* Tilix (optionally)
 
 Clone this repo:
 
@@ -52,12 +52,38 @@ a set of hosts under a single profile. For example:
 
 Then when setting up the automatic profile switching in Tilix (as described [here](https://deeb.me/20190116/change-profiles-automatically-in-tilix-when-connecting-to-ssh-hosts)), you can use the aliases instead of the hostname (in the case of the example, you can use "prod", "docker" or "default").
 
+## Setting background color for other terminals
+
+You can also use the script to set the background color for other terminals - while this feature works for other terminals, it doesn't work currently with Tilix (as of v1.9.1).
+
+To choose a background color to use, you can pass the RGB value to set the background to like this:
+
+    $ cat ~/.ssh/config
+    PermitLocalCommand yes
+    Host *
+        LocalCommand ssh-tilix-profile-switch "%n" "--remotebg=#225588"
+
+Once the SSH connection is finished, the terminal will have the background set back to black, but you can define the color to restore the terminal to like this:
+
+    $ cat ~/.ssh/config
+    PermitLocalCommand yes
+    Host *
+        LocalCommand ssh-tilix-profile-switch "%n" "--remotebg=#2266aa" "--localbg=#222222"
+
+The command will still set the hostname to allow Tilix to do profile switching, so defining something like this will still work for both Tilix and other terminals:
+
+    $ cat ~/.ssh/config
+    PermitLocalCommand yes
+    Host *
+        LocalCommand ssh-tilix-profile-switch "%n" "--alias=prod" "--remotebg=#2266aa" "--localbg=#222222"
+
 ## Remarks, weirdness and bugs.
 
 * The hostname is the one you specify on the commandline, **NOT** necessarily
   the real remote hostname.
 * Manually chained SSH (`ssh machine_a -> ssh machine_b`) will not work.
   Automatically chained SSH (through `ProxyCommand`) *will* work.
+* Changing colors will not necessarily work for all terminals - such as Byobu.
 
 ## License
 
