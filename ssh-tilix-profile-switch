@@ -13,7 +13,6 @@ import tempfile
 import time
 import sys
 
-
 # Source: https://stackoverflow.com/a/30540928
 GET_BG_COLOR_SCRIPT = r'''
 #!/bin/sh
@@ -30,26 +29,24 @@ echo $result | sed 's/[^rgb:0-9a-f/]\+$//'
 
 
 def get_bg_terminal_color():
-    tmpdir = tempfile.mkdtemp(prefix='bgcolor-')
-    atexit.register(shutil.rmtree, tmpdir)
+    with tempfile.TemporaryDirectory(prefix='bgcolor-') as tmpdir:
+        script = tmpdir + '/script'
+        output = tmpdir + '/output'
 
-    script = tmpdir + '/script'
-    output = tmpdir + '/output'
+        with open(script, 'w') as f:
+            f.write(GET_BG_COLOR_SCRIPT)
+            f.write(f" > {output}")
+        os.chmod(script, 0o500)
 
-    with open(script, 'w') as f:
-        f.write(GET_BG_COLOR_SCRIPT)
-        f.write(f" > {output}")
-    os.chmod(script, 0o500)
+        subprocess.run(script)
 
-    subprocess.run(script)
+        # This behaves differently if we use pipes for the
+        # subprocess, so we have to pipe the output to a file.
+        with open(output, 'r') as f:
+            rgb_line = f.read()
+            m = re.match('rgb:(.{2}).{2}\/(.{2}).{2}\/(.{2}).{2}', rgb_line)
 
-    # This behaves differently if we use pipes for the
-    # subprocess, so we have to pipe the output to a file.
-    with open(output, 'r') as f:
-        rgb_line = f.read()
-        m = re.match('rgb:(.{2}).{2}\/(.{2}).{2}\/(.{2}).{2}', rgb_line)
-
-    return '#{}{}{}'.format(*m.groups())
+    return '#{}{}{}'.format(*m.groups()) if m else ''
 
 def set_host(host):
     print(f'\033]7;file://{host}\007', end='')
