@@ -42,13 +42,13 @@ a set of hosts under a single profile. For example:
     $ cat ~/.ssh/config
     PermitLocalCommand yes
     Host *.production
-        LocalCommand ssh-tilix-profile-switch "%n" "prod"
+        LocalCommand ssh-tilix-profile-switch "%n" "--alias=prod"
     Host devbox devbox2
         LocalCommand ssh-tilix-profile-switch "%n"
     Host docker*
-        LocalCommand ssh-tilix-profile-switch "%n" "docker"
+        LocalCommand ssh-tilix-profile-switch "%n" "--alias=docker"
     Host *
-        LocalCommand ssh-tilix-profile-switch "%n" "default"
+        LocalCommand ssh-tilix-profile-switch "%n" "--alias=default"
 
 Then when setting up the automatic profile switching in Tilix (as described [here](https://deeb.me/20190116/change-profiles-automatically-in-tilix-when-connecting-to-ssh-hosts)), you can use the aliases instead of the hostname (in the case of the example, you can use "prod", "docker" or "default").
 

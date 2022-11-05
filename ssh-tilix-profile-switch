@@ -2,6 +2,7 @@
 
 # Released under the MIT license. See LICENSE file accompanying this project.
 
+import argparse
 import atexit
 import os
 import socket
@@ -64,21 +65,22 @@ def wait_parent_pid(parent_pid):
 
 
 if __name__ == "__main__":
-    # Arguments
-    if len(sys.argv) not in (2, 3):
-        sys.exit("Usage: {} <hostname> [alias]".format(sys.argv[0]))
-    hostname = sys.argv[1]
-    alias = sys.argv[-1]
+
+    parser = argparse.ArgumentParser(description='Change profile or colors on SSH connect.')
+    parser.add_argument('hostname', help='Hostname being connected to.')
+    parser.add_argument('--alias', help="Alias hostname to inform Tilix we are connecting to.")
+
+    args = parser.parse_args()
 
     # Get our parent pid, which is the PID for the ssh process.
     ssh_pid = os.getppid()
 
     # Verify that this is not a forwarding connection.
-    if not is_interactive(ssh_pid, hostname):
+    if not is_interactive(ssh_pid, args.hostname):
         # Don't do anything or SSH will wait for our forked child.
         sys.exit(0)
 
-    set_host(alias + '/')
+    set_host((args.alias or args.hostname) + '/')
 
     # Fork into the background so we can wait for the ssh process to exit.
     pid = os.fork()
