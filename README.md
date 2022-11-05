@@ -1,5 +1,5 @@
-ssh-tilix-profile-switch
-========================
+ssh-term-switch
+===============
 
 Script to help change Tilix profile when SSH'ing.
 
@@ -7,7 +7,9 @@ I liked [this script](https://github.com/fboender/sshbg) which intelligently det
 
 And I liked [this guide](https://deeb.me/20190116/change-profiles-automatically-in-tilix-when-connecting-to-ssh-hosts) to alias the `ssh` command to help trigger a Tilix profile.
 
-So I combined them - you can use this script to help automatically set a Tilix profile, and use the standard SSH config file to help set the name. It can also set the background color too for other terminals.
+And I liked [this script](https://stackoverflow.com/a/30540928) which shows a convoluted way to get the current background color of a terminal.
+
+So I combined them - you can use this script to help automatically set a Tilix profile, and use the standard SSH config file to help set the name. It can also set the background color too for other terminals, and try to restore the original color once it's complete.
 
 ## Installation and usage
 
@@ -18,12 +20,12 @@ Requirements:
 
 Clone this repo:
 
-    git clone git@github.com:the-allanc/ssh-tilix-profile-switch.git
+    git clone git@github.com:the-allanc/ssh-term-switch.git
     cd ssh-tilix-profile-switch
 
-Copy the `ssh-tilix-profile-switch` script to some dir in your PATH, for example:
+Copy the `ssh-term-switch` script to some dir in your PATH, for example:
 
-    sudo cp ssh-tilix-profile-switch /usr/local/bin/
+    sudo cp ssh-term-switch /usr/local/bin/
 
 Enable the `LocalCommand` configuration setting in your SSH config. You can do
 this on a host-by-host basis, or with wildcards. To enable it for all hosts,
