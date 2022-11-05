@@ -5,13 +5,51 @@
 import argparse
 import atexit
 import os
+import re
+import shutil
 import socket
+import subprocess
+import tempfile
 import time
 import sys
 
 
+# Source: https://stackoverflow.com/a/30540928
+GET_BG_COLOR_SCRIPT = r'''
+#!/bin/sh
+oldstty=$(stty -g)
+Ps=${1:-11}
+stty raw -echo min 0 time 0
+printf "\033]$Ps;?\033\\"
+sleep 0.1
+read -r answer
+result=${answer#*;}
+stty $oldstty
+echo $result | sed 's/[^rgb:0-9a-f/]\+$//'
+'''.strip()
+
+
 def get_bg_terminal_color():
-    return '#000000'
+    tmpdir = tempfile.mkdtemp(prefix='bgcolor-')
+    atexit.register(shutil.rmtree, tmpdir)
+
+    script = tmpdir + '/script'
+    output = tmpdir + '/output'
+
+    with open(script, 'w') as f:
+        f.write(GET_BG_COLOR_SCRIPT)
+        f.write(f" > {output}")
+    os.chmod(script, 0o500)
+
+    subprocess.run(script)
+
+    # This behaves differently if we use pipes for the
+    # subprocess, so we have to pipe the output to a file.
+    with open(output, 'r') as f:
+        rgb_line = f.read()
+        m = re.match('rgb:(.{2}).{2}\/(.{2}).{2}\/(.{2}).{2}', rgb_line)
+
+    return '#{}{}{}'.format(*m.groups())
 
 def set_host(host):
     print(f'\033]7;file://{host}\007', end='')
@@ -75,7 +113,7 @@ if __name__ == "__main__":
     parser.add_argument('hostname', help='Hostname being connected to.')
     parser.add_argument('--alias', help="Alias hostname to inform Tilix we are connecting to.")
     parser.add_argument('--remotebg', help="RGB background color for the terminal on connect.")
-    parser.add_argument('--localbg', help="RGB background color for the terminal on disconnect.")
+    parser.add_argument('--localbg', help="RGB background color for the terminal on disconnect. Will try to determine this automatically if not defined.")
 
     args = parser.parse_args()
 

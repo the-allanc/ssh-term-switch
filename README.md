@@ -63,7 +63,7 @@ To choose a background color to use, you can pass the RGB value to set the backg
     Host *
         LocalCommand ssh-tilix-profile-switch "%n" "--remotebg=#225588"
 
-Once the SSH connection is finished, the terminal will have the background set back to black, but you can define the color to restore the terminal to like this:
+Once the SSH connection is finished, the script will try to restore the background color to what it previously (if it can detect it), but you can override the color to restore the terminal to like this:
 
     $ cat ~/.ssh/config
     PermitLocalCommand yes
