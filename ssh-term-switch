@@ -127,7 +127,7 @@ if __name__ == "__main__":
         localbg = args.localbg or get_bg_terminal_color()
         set_bg_color(args.remotebg)
 
-    set_host((args.alias or args.hostname) + '/')
+    set_host((args.alias or args.hostname) + os.getcwd())
 
     # Fork into the background so we can wait for the ssh process to exit.
     pid = os.fork()
