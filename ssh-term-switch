@@ -44,7 +44,7 @@ def get_bg_terminal_color():
         # subprocess, so we have to pipe the output to a file.
         with open(output, 'r') as f:
             rgb_line = f.read()
-            m = re.match('rgb:(.{2}).{2}\/(.{2}).{2}\/(.{2}).{2}', rgb_line)
+            m = re.match(r'rgb:(.{2}).{2}\/(.{2}).{2}\/(.{2}).{2}', rgb_line)
 
     return '#{}{}{}'.format(*m.groups()) if m else ''
 
